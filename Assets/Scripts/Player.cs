@@ -7,10 +7,12 @@ public class Player : NetworkBehaviour
 {
     [SyncVar] [SerializeField] private float speed;
     private Rigidbody _rb;
+    public CharacterController characterController;
 
     private void Start()
     {
         _rb = GetComponent<Rigidbody>();
+        characterController = GetComponent<CharacterController>();
 
         if (isClient && isLocalPlayer)
         {
@@ -31,11 +33,27 @@ public class Player : NetworkBehaviour
     [Command]
     public void CmdMovePlayer(Vector3 movement)
     {
-        _rb.AddForce(movement.normalized * speed);
+        //_rb.AddForce(movement.normalized * speed);
+        //transform.Translate(movement.x * speed * Time.deltaTime, 0, movement.z * speed * Time.deltaTime);
+
+        Vector3 direction = new Vector3(movement.x, 0, movement.z);
+        direction = Vector3.ClampMagnitude(direction, 1f);
+        direction = transform.TransformDirection(direction);
+        direction *= speed;
+
+        characterController.SimpleMove(direction);
     }
     
     public void MovePlayer(Vector3 movement)
     {
-        _rb.AddForce(movement.normalized * speed);
+        //_rb.AddForce(movement.normalized * speed);
+        //transform.Translate(movement.x * speed, 0, movement.z);
+        
+        Vector3 direction = new Vector3(movement.x, 0, movement.z);
+        direction = Vector3.ClampMagnitude(direction, 1f);
+        direction = transform.TransformDirection(direction);
+        direction *= speed;
+
+        characterController.SimpleMove(direction);
     }
 }

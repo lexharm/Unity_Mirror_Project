@@ -36,6 +36,6 @@ public class InputManager : MonoBehaviour
         _movementVector.z = Input.GetAxis("Vertical");
         
         playerObject.CmdMovePlayer(_movementVector);
-        playerObject.MovePlayer(_movementVector);
+        //playerObject.MovePlayer(_movementVector);
     }
 }

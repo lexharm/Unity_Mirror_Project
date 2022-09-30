@@ -43,8 +43,8 @@ public class Player : NetworkBehaviour
 
         characterController.SimpleMove(direction);
     }
-    
-    public void MovePlayer(Vector3 movement)
+
+    /*public void MovePlayer(Vector3 movement)
     {
         //_rb.AddForce(movement.normalized * speed);
         //transform.Translate(movement.x * speed, 0, movement.z);
@@ -55,5 +55,12 @@ public class Player : NetworkBehaviour
         direction *= speed;
 
         characterController.SimpleMove(direction);
+    }*/
+
+    [Command]
+    public void CmdRotatePlayer(float turn)
+    {
+        //transform.Rotate(0f, turn * Time.fixedDeltaTime, 0f);
+        transform.Rotate(0f, turn, 0f);
     }
 }

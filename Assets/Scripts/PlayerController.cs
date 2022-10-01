@@ -35,7 +35,8 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float maxDashDistant = 5.0f;
     private float _dashSpeed;
     private float _dashTime = 0.2f;
-    private bool isDashing;
+    [SyncVar] private bool isDashing = false;
+    [SyncVar] private int _score = 0;
 
     private void Start()
     {
@@ -84,11 +85,12 @@ public class PlayerController : NetworkBehaviour
 
         //turn = Mathf.MoveTowards(turn, Input.GetAxis("Mouse X") * maxTurnSpeed, turnSensitivity);
 
-        if (Input.GetMouseButtonDown(0))
+        //if (Input.GetMouseButtonDown(0))
+        if (Input.GetKeyDown(KeyCode.Space))
         {
             if (!isDashing)
             {
-                isDashing = true;
+                SetIsDashing(true);
                 StartCoroutine(Dash());
             }
         }
@@ -121,6 +123,12 @@ public class PlayerController : NetworkBehaviour
         isGrounded = characterController.isGrounded;
         velocity = characterController.velocity;*/
     }
+    
+    [Command]
+    private void SetIsDashing(bool value)
+    {
+        isDashing = value;
+    }
 
     private IEnumerator Dash()
     {
@@ -132,52 +140,41 @@ public class PlayerController : NetworkBehaviour
             yield return null;
         }
 
-        isDashing = false;
+        SetIsDashing(false);
     }
-
-    [Command]
-    public void CmdMovePlayer(Vector3 movement)
-    {
-        //_rb.AddForce(movement.normalized * speed);
-        //transform.Translate(movement.x * speed * Time.deltaTime, 0, movement.z * speed * Time.deltaTime);
-
-        /*Vector3 direction = new Vector3(movement.x, 0, movement.z);
-        direction = Vector3.ClampMagnitude(direction, 1f);
-        direction = transform.TransformDirection(direction);
-        direction *= moveSpeed;
-
-        characterController.SimpleMove(direction);*/
-    }
-
-    /*void FixedUpdate()
-    {
-        if (!isLocalPlayer || characterController == null || !characterController.enabled)
-            return;
-
-        transform.Rotate(0f, turn * Time.fixedDeltaTime, 0f);
-
-        Vector3 direction = new Vector3(horizontal, jumpSpeed, vertical);
-        direction = Vector3.ClampMagnitude(direction, 1f);
-        direction = transform.TransformDirection(direction);
-        direction *= moveSpeed;
-        Debug.Log("direction=" + direction);
-
-        if (jumpSpeed > 0)
-            characterController.Move(direction * Time.fixedDeltaTime);
-        else
-            characterController.SimpleMove(direction);
-
-        isGrounded = characterController.isGrounded;
-        velocity = characterController.velocity;
-    }*/
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
         GameObject target = hit.transform.gameObject;
         DashController collidePlayer = target.GetComponent<DashController>();
-        if (collidePlayer && isDashing)
+        ProcessDash(collidePlayer);
+    }
+
+    [Command]
+    private void ProcessDash(DashController collidePlayer)
+    {
+        //Debug.Log("collidePlayer=" + collidePlayer + " isDashing=" + isDashing + " !collidePlayer.isDashed=" + !collidePlayer.isDashed);
+        if (collidePlayer && isDashing && !collidePlayer.isDashed)
         {
+            //Debug.Log("INSIDE");
+            //UpdateScore(gameObject.name);
             collidePlayer.ProcessDashCollide();
+            NetworkIdentity dashingPlayer = collidePlayer.GetComponent<NetworkIdentity>();
+            //RpcProcessDash(dashingPlayer.connectionToClient);
+            RpcProcessDash();
         }
+        isDashing = false;
+    }
+
+    [ClientRpc]
+    public void RpcProcessDash()
+    {
+        Debug.Log("You have been dashed");
+    }
+
+    private void UpdateScore(string playerName)
+    {
+        _score++;
+        ScoreManager.Instance.CmdUpdateScore(playerName, _score);
     }
 }

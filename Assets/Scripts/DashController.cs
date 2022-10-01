@@ -6,8 +6,9 @@ using Mirror;
 public class DashController : NetworkBehaviour
 {
     [SerializeField] private float changeColorTime = 3.0f;
-    private float startChangeColorTime = 0;
-    private bool isDashed;
+    [SyncVar] private float startChangeColorTime = 0;
+    [SyncVar] private bool _isDashed = false;
+    public bool isDashed => _isDashed;
     private Color defaultColor = Color.white;
     private Color changeColor = Color.red;
     private MeshRenderer renderer;
@@ -19,20 +20,35 @@ public class DashController : NetworkBehaviour
 
     public void ProcessDashCollide()
     {
-        if (!isDashed)
+        if (!_isDashed)
         {
-            isDashed = true;
+            _isDashed = true;
             startChangeColorTime = Time.time;
-            renderer.material.color = changeColor;
+            RpcChangeColor(changeColor);
         }        
+    }
+
+    [ClientRpc]
+    private void RpcChangeColor(Color color)
+    {
+        renderer.material.color = color;
     }
 
     private void Update()
     {
-        if (isDashed && Time.time - startChangeColorTime >= changeColorTime)
+        if (_isDashed && Time.time - startChangeColorTime >= changeColorTime)
         {
-            renderer.material.color = defaultColor;
-            isDashed = false;
+            CmdCheckAndSetIsDashed(false);
+        }
+    }
+
+    [Command]
+    private void CmdCheckAndSetIsDashed(bool value)
+    {
+        if (Time.time - startChangeColorTime >= changeColorTime)
+        {
+            _isDashed = value;
+            RpcChangeColor(defaultColor);
         }
     }
 }

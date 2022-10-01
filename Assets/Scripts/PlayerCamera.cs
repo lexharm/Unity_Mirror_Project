@@ -73,7 +73,7 @@ public class PlayerCamera : NetworkBehaviour
         Vector3 nextRotation = new Vector3(_rotationX, _rotationY);
 
         _currentRotation = Vector3.SmoothDamp(_currentRotation, nextRotation, ref _smoothVelocity, _smoothTime);
-        mainCam.transform.localEulerAngles = _currentRotation;
+        mainCam.transform.eulerAngles = _currentRotation;
         mainCam.transform.position = transform.position - mainCam.transform.forward * _distanceFromTarget;
     }
 }

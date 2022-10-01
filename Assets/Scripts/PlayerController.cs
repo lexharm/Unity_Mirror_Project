@@ -35,6 +35,7 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float maxDashDistant = 5.0f;
     private float _dashSpeed;
     private float _dashTime = 0.2f;
+    private bool isDashing;
 
     private void Start()
     {
@@ -85,8 +86,11 @@ public class PlayerController : NetworkBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
-            Debug.Log("X_Dash_X");
-            StartCoroutine(Dash());
+            if (!isDashing)
+            {
+                isDashing = true;
+                StartCoroutine(Dash());
+            }
         }
 
         /*if (!isLocalPlayer || characterController == null || !characterController.enabled)
@@ -125,9 +129,10 @@ public class PlayerController : NetworkBehaviour
         while (Time.time < startTime + _dashTime)
         {
             characterController.Move(moveDir * _dashSpeed * Time.deltaTime);
-            Debug.Log("Dash!!");
             yield return null;
         }
+
+        isDashing = false;
     }
 
     [Command]
@@ -165,4 +170,14 @@ public class PlayerController : NetworkBehaviour
         isGrounded = characterController.isGrounded;
         velocity = characterController.velocity;
     }*/
+
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        GameObject target = hit.transform.gameObject;
+        DashController collidePlayer = target.GetComponent<DashController>();
+        if (collidePlayer && isDashing)
+        {
+            collidePlayer.ProcessDashCollide();
+        }
+    }
 }

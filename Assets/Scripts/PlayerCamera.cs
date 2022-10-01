@@ -16,10 +16,23 @@ public class PlayerCamera : NetworkBehaviour
     private float _smoothTime = 0.2f;
     private Vector2 _rotationXMinMax = new Vector2(-5, 45);
 
-    void Awake()
+    void Start()
     {
-        mainCam = Camera.main;
-        GetComponent<PlayerController>().cam = mainCam.transform;
+        if (isClient && isLocalPlayer)
+        {
+            mainCam = Camera.main;
+            GetComponent<PlayerController>().cam = mainCam.transform;
+
+            mainCam.orthographic = false;
+            mainCam.transform.SetParent(transform);
+            mainCam.transform.localPosition = new Vector3(0f, 3f, -5f);
+            mainCam.transform.localEulerAngles = new Vector3(10f, 0f, 0f);
+
+            _distanceFromTarget = mainCam.transform.localPosition.magnitude;
+
+            mainCam.transform.SetParent(null);
+
+        }
     }
 
     public override void OnStartLocalPlayer()
@@ -34,7 +47,7 @@ public class PlayerCamera : NetworkBehaviour
 
             _distanceFromTarget = mainCam.transform.localPosition.magnitude;
             
-            //mainCam.transform.SetParent(null);
+            mainCam.transform.SetParent(null);
         }
     }
 

@@ -5,10 +5,13 @@ namespace Mirror.Examples.Basic
 {
     public class Player : NetworkBehaviour
     {
+        [SerializeField] private int winScore = 3;
+
         // Events that the PlayerUI will subscribe to
         public event System.Action<byte> OnPlayerNumberChanged;
         public event System.Action<Color32> OnPlayerColorChanged;
-        public event System.Action<ushort> OnPlayerDataChanged;
+        public event System.Action<int> OnPlayerScoreChanged;
+        public event System.Action<bool> OnPlayerWin;
 
         // Players List to manage playerNumber
         static readonly List<Player> playersList = new List<Player>();
@@ -38,8 +41,11 @@ namespace Mirror.Examples.Basic
         /// <summary>
         /// This is updated by UpdateData which is called from OnStartServer via InvokeRepeating
         /// </summary>
-        [SyncVar(hook = nameof(PlayerDataChanged))]
-        public ushort playerData = 0;
+        [SyncVar(hook = nameof(PlayerScoreChanged))]
+        public int playerScore = 0;
+
+        [SyncVar(hook = nameof(PlayerWins))]
+        public bool isPlayerWins = false;
 
         // This is called by the hook of playerNumber SyncVar above
         void PlayerNumberChanged(byte _, byte newPlayerNumber)
@@ -54,9 +60,14 @@ namespace Mirror.Examples.Basic
         }
 
         // This is called by the hook of playerData SyncVar above
-        void PlayerDataChanged(ushort _, ushort newPlayerData)
+        void PlayerScoreChanged(int _, int newPlayerScore)
         {
-            OnPlayerDataChanged?.Invoke(newPlayerData);
+            OnPlayerScoreChanged?.Invoke(newPlayerScore);
+        }
+
+        void PlayerWins(bool _, bool newValue)
+        {
+            OnPlayerWin?.Invoke(newValue);
         }
 
         #endregion
@@ -78,11 +89,11 @@ namespace Mirror.Examples.Basic
             // set the Player Color SyncVar
             playerColor = Random.ColorHSV(0f, 1f, 0.9f, 0.9f, 1f, 1f);
 
-            // set the initial player data
-            playerData = (ushort)Random.Range(100, 1000);
+            // set the initial player score
+            playerScore = 0;
 
             // Start generating updates
-            InvokeRepeating(nameof(UpdateData), 1, 1);
+            //InvokeRepeating(nameof(UpdateData), 1, 1);
         }
 
         // This is called from BasicNetManager OnServerAddPlayer and OnServerDisconnect
@@ -97,9 +108,12 @@ namespace Mirror.Examples.Basic
 
         // This only runs on the server, called from OnStartServer via InvokeRepeating
         [ServerCallback]
-        void UpdateData()
+        public void UpdateScore()
         {
-            playerData = (ushort)Random.Range(100, 1000);
+            playerScore++;
+
+            if (playerScore == winScore)
+                isPlayerWins = true;
         }
 
         /// <summary>
@@ -131,12 +145,13 @@ namespace Mirror.Examples.Basic
             // wire up all events to handlers in PlayerUI
             OnPlayerNumberChanged = playerUI.OnPlayerNumberChanged;
             OnPlayerColorChanged = playerUI.OnPlayerColorChanged;
-            OnPlayerDataChanged = playerUI.OnPlayerDataChanged;
+            OnPlayerScoreChanged = playerUI.OnPlayerScoreChanged;
+            OnPlayerWin = playerUI.OnPlayerWin;
 
             // Invoke all event handlers with the initial data from spawn payload
             OnPlayerNumberChanged.Invoke(playerNumber);
             OnPlayerColorChanged.Invoke(playerColor);
-            OnPlayerDataChanged.Invoke(playerData);
+            OnPlayerScoreChanged.Invoke(playerScore);
         }
 
         /// <summary>
@@ -173,7 +188,7 @@ namespace Mirror.Examples.Basic
             // disconnect event handlers
             OnPlayerNumberChanged = null;
             OnPlayerColorChanged = null;
-            OnPlayerDataChanged = null;
+            OnPlayerScoreChanged = null;
 
             // Remove this player's UI object
             Destroy(playerUIObject);

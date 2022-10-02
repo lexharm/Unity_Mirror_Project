@@ -32,10 +32,18 @@ namespace Mirror.Examples.Basic
         }
 
         // This updates from Player::UpdateData via InvokeRepeating on server
-        public void OnPlayerDataChanged(ushort newPlayerData)
+        public void OnPlayerScoreChanged(int newPlayerScore)
         {
             // Show the data in the UI
-            playerDataText.text = string.Format("Data: {0:000}", newPlayerData);
+            playerDataText.text = string.Format("{0}", newPlayerScore);
         }
+
+        public void OnPlayerWin(bool isPlayerWins)
+        {
+            // Show the data in the UI
+            if (isPlayerWins)
+                playerDataText.text = "WINNER!!!";
+        }
+
     }
 }

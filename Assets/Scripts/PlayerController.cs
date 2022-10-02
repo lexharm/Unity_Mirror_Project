@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
+using Mirror.Examples.Basic;
 
 [RequireComponent(typeof(CapsuleCollider))]
 [RequireComponent(typeof(CharacterController))]
@@ -153,11 +154,12 @@ public class PlayerController : NetworkBehaviour
     [Command]
     private void ProcessDash(DashController collidePlayer)
     {
-        //Debug.Log("collidePlayer=" + collidePlayer + " isDashing=" + isDashing + " !collidePlayer.isDashed=" + !collidePlayer.isDashed);
         if (collidePlayer && isDashing && !collidePlayer.isDashed)
         {
-            //Debug.Log("INSIDE");
-            //UpdateScore(gameObject.name);
+            /*_score++;
+            ScoreManager.Instance.UpdateScore(NetworkClient.localPlayer.netId.ToString(), _score);*/
+            GetComponent<Player>().UpdateScore();
+            SendMessage();
             collidePlayer.ProcessDashCollide();
             NetworkIdentity dashingPlayer = collidePlayer.GetComponent<NetworkIdentity>();
             //RpcProcessDash(dashingPlayer.connectionToClient);
@@ -166,15 +168,15 @@ public class PlayerController : NetworkBehaviour
         isDashing = false;
     }
 
+    private void SendMessage()
+    {
+        Debug.Log("SendMessage");
+        //ScoreManager.Instance.CmdSend("" + Time.time);
+    }
+
     [ClientRpc]
     public void RpcProcessDash()
     {
         Debug.Log("You have been dashed");
-    }
-
-    private void UpdateScore(string playerName)
-    {
-        _score++;
-        ScoreManager.Instance.CmdUpdateScore(playerName, _score);
     }
 }

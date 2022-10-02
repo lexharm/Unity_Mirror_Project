@@ -1,5 +1,6 @@
 using UnityEngine;
 using Mirror;
+using Mirror.Examples.Basic;
 
 /*
 	Documentation: https://mirror-networking.gitbook.io/docs/components/network-room-manager

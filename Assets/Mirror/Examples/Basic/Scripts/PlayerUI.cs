@@ -22,7 +22,7 @@ namespace Mirror.Examples.Basic
         // This value can change as clients leave and join
         public void OnPlayerNumberChanged(byte newPlayerNumber)
         {
-            playerNameText.text = string.Format("Player {0:00}", newPlayerNumber);
+            playerNameText.text = string.Format("Player", newPlayerNumber);
         }
 
         // Random color set by Player::OnStartServer

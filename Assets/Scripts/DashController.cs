@@ -9,13 +9,14 @@ public class DashController : NetworkBehaviour
     [SyncVar] private float startChangeColorTime = 0;
     [SyncVar] private bool _isDashed = false;
     public bool isDashed => _isDashed;
-    private Color defaultColor = Color.white;
+    private Color defaultColor;
     private Color changeColor = Color.red;
     private MeshRenderer renderer;
 
     private void Start()
     {
         renderer = GetComponent<MeshRenderer>();
+        defaultColor = renderer.material.color;
     }
 
     public void ProcessDashCollide()

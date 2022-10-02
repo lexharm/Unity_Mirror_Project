@@ -88,6 +88,7 @@ namespace Mirror.Examples.Basic
 
             // set the Player Color SyncVar
             playerColor = Random.ColorHSV(0f, 1f, 0.9f, 0.9f, 1f, 1f);
+            GetComponent<MeshRenderer>().material.color = playerColor;
 
             // set the initial player score
             playerScore = 0;
@@ -99,7 +100,7 @@ namespace Mirror.Examples.Basic
         // This is called from BasicNetManager OnServerAddPlayer and OnServerDisconnect
         // Player numbers are reset whenever a player joins / leaves
         [ServerCallback]
-        internal static void ResetPlayerNumbers()
+        public static void ResetPlayerNumbers()
         {
             byte playerNumber = 0;
             foreach (Player player in playersList)
@@ -137,6 +138,7 @@ namespace Mirror.Examples.Basic
         public override void OnStartClient()
         {
             Debug.Log("OnStartClient");
+            GetComponent<MeshRenderer>().material.color = playerColor;
 
             // Instantiate the player UI as child of the Players Panel
             playerUIObject = Instantiate(playerUIPrefab, CanvasUI.instance.playersPanel);

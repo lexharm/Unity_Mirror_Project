@@ -113,7 +113,7 @@ namespace Mirror.Examples.Basic
         {
             playerScore++;
 
-            if (playerScore == winScore)
+            if (playerScore >= winScore)
                 isPlayerWins = true;
         }
 

@@ -29,17 +29,19 @@ public class PlayerController : NetworkBehaviour
     public bool isGrounded = true;
     public bool isFalling;
     public Vector3 velocity;
+    private bool _isMoving;
+    public bool isMoving => _isMoving;
 
-    [Header("Dash")]
+    /*[Header("Dash")]
     [SerializeField] private float maxDashDistant = 5.0f;
     private float _dashSpeed;
     private float _dashTime = 0.2f;
-    [SyncVar] private bool isDashing = false;
+    [SyncVar] private bool isDashing = false;*/
 
     private void Start()
     {
         Cursor.visible = false;
-        _dashSpeed = maxDashDistant / _dashTime;
+        //_dashSpeed = maxDashDistant / _dashTime;
     }
 
     void OnValidate()
@@ -77,20 +79,24 @@ public class PlayerController : NetworkBehaviour
 
         if (dir.magnitude >= 0.1f)
         {
+            _isMoving = true;
             characterController.Move(moveDir.normalized * moveSpeed * Time.deltaTime);
+        } else
+        {
+            _isMoving = false;
         }
 
-        if (Input.GetMouseButtonDown(0))
+        /*if (Input.GetMouseButtonDown(0))
         {
             if (!isDashing)
             {
                 SetIsDashing(true);
                 StartCoroutine(Dash());
             }
-        }
+        }*/
     }
     
-    [Command]
+    /*[Command]
     private void SetIsDashing(bool value)
     {
         isDashing = value;
@@ -121,10 +127,11 @@ public class PlayerController : NetworkBehaviour
     {
         if (collidePlayer && isDashing && !collidePlayer.isDashed)
         {
-            GetComponent<Player>().UpdateScore();
+            //GetComponent<Player>().UpdateScore();
+            GetComponent<PlayerScore>().score++;
             collidePlayer.ProcessDashCollide();
             NetworkIdentity dashingPlayer = collidePlayer.GetComponent<NetworkIdentity>();
         }
         isDashing = false;
-    }
+    }*/
 }

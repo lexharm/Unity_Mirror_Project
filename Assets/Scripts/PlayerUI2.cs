@@ -15,6 +15,9 @@ public class PlayerUI2 : MonoBehaviour
     #endregion*/
 
     [SerializeField]
+    private Text playerScore;
+
+    [SerializeField]
     private Text matchResultText;
 
     [SerializeField]
@@ -24,6 +27,11 @@ public class PlayerUI2 : MonoBehaviour
     {
         matchResultText.gameObject.SetActive(false);
         matchRestartText.gameObject.SetActive(false);
+    }
+
+    public void RefreshPlayerScore(int value)
+    {
+        playerScore.text = "Your score: " + value;
     }
 
     public void SetAndShowResultText(string value)

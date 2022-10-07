@@ -6,6 +6,7 @@ using System;
 
 public class PlayerScore : NetworkBehaviour
 {
+    [SerializeField]
     [SyncVar(hook = nameof(SetScore))]
     private int _score = 0;
     public int score {
@@ -36,5 +37,9 @@ public class PlayerScore : NetworkBehaviour
     private void SetScore(int _, int newValue)
     {
         score = newValue;
+        if (isLocalPlayer)
+        {
+            playerUI.RefreshPlayerScore(score);
+        }
     }
 }

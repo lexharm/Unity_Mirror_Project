@@ -13,7 +13,7 @@ public class MatchManager : NetworkBehaviour
     [Range(1, 100)]
     private int scoreValueToWin = 3;
 
-    [Tooltip("Delay in seconds before restart match.")]
+    [Tooltip("Delay in seconds before match restarting.")]
     [SerializeField]
     [Range(1, 60)]
     private int restartMatchDelay = 5;
@@ -28,12 +28,6 @@ public class MatchManager : NetworkBehaviour
     private PlayerUI2 playerUI;
     #endregion
 
-    private void Start()
-    {
-        //playerUI = FindObjectOfType<PlayerUI2>();
-        //playerUI = PlayerUI2.Instance;
-    }
-
     public void RegisterPlayerScore(PlayerScore playerScore)
     {
         playerScore.OnScoreChanged += OnScoreChanged;
@@ -41,31 +35,23 @@ public class MatchManager : NetworkBehaviour
 
     private void OnScoreChanged(PlayerScore playerScore)
     {
-        Debug.Log("OnScoreChanged");
         if (playerScore.score >= scoreValueToWin)
         {
             string resultText = playerScore.isLocalPlayer ? "You win!" : "You lose :(";
-            //playerScore.playerUI.SetAndShowResultText(resultText);
-            //matchResultText.text = resultText;
             playerUI.SetAndShowResultText(resultText);
-
             StartCoroutine(RestartMatch());
         }
     }
 
     private IEnumerator RestartMatch()
     {
-        Debug.Log("StartCoroutine");
         for (int i = restartMatchDelay; i > 0; i--)
         {
-            yield return new WaitForSeconds(1);
             playerUI.SetAndShowRestartText("Next match starts in " + i + "...");
-            //matchRestartText.text = "Next match starts in " + i + "...";
-            Debug.Log("Next match starts in " + i + "...");
+            yield return new WaitForSeconds(1);
         }
         if (isServer)
         {
-            Debug.Log("isServer");
             NetworkManager.singleton.ServerChangeScene(SceneManager.GetActiveScene().name);
         }
     }

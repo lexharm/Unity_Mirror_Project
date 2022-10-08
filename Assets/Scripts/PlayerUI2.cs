@@ -5,17 +5,8 @@ using UnityEngine.UI;
 
 public class PlayerUI2 : MonoBehaviour
 {
-    /*#region Singleton
-    public static PlayerUI2 instance;
-
-    private void Awake()
-    {
-        instance = this;
-    }
-    #endregion*/
-
     [SerializeField]
-    private Text playerScore;
+    private Text playerScoreText;
 
     [SerializeField]
     private Text matchResultText;
@@ -31,7 +22,7 @@ public class PlayerUI2 : MonoBehaviour
 
     public void RefreshPlayerScore(int value)
     {
-        playerScore.text = "Your score: " + value;
+        playerScoreText.text = "Your score: " + value;
     }
 
     public void SetAndShowResultText(string value)

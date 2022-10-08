@@ -21,7 +21,7 @@ public class PlayerCamera : NetworkBehaviour
         if (isClient && isLocalPlayer)
         {
             mainCam = Camera.main;
-            GetComponent<PlayerController>().cam = mainCam.transform;
+            GetComponent<MoveController>().cam = mainCam.transform;
 
             mainCam.orthographic = false;
             mainCam.transform.SetParent(transform);
@@ -39,7 +39,7 @@ public class PlayerCamera : NetworkBehaviour
         if (mainCam != null)
         {
             mainCam.transform.SetParent(null);
-            GetComponent<PlayerController>().cam = null;
+            GetComponent<MoveController>().cam = null;
             SceneManager.MoveGameObjectToScene(mainCam.gameObject, SceneManager.GetActiveScene());
             mainCam.orthographic = true;
             mainCam.transform.localPosition = new Vector3(0f, 70f, 0f);

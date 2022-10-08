@@ -1,84 +1,64 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
 
 public class DashController : NetworkBehaviour
 {
+    #region Dash params
+    [Header("Dash params")]
     [SerializeField] private KeyCode activationButton = KeyCode.Mouse0;
+
+    [Tooltip("Distant which player dashes.")]
+    [SerializeField] private float dashDistant = 10.0f;
+
+    [Tooltip("Time during which player dashes.")]
+    [SerializeField] private float dashTime = 0.2f;
+    private float dashSpeed => dashDistant / dashTime;
+    [SyncVar] private bool isDashing = false;
+    #endregion
 
     #region Invulnerability params
     [Header("Invulnerability params")]
+    [Tooltip("During this time player will not react to the dash.")]
     [SerializeField] private float invulnerabilityTime = 3.0f;
+    
+    [Tooltip("Player's color during he is dashed by other player.")]
     [SerializeField] private Color invulnerabilityColor = Color.red;
-    [SyncVar] private float startChangeColorTime = 0;
+    
+    [SyncVar] private float startInvulnerabilityTime = 0;
+    [SyncVar] private bool isDashed = false;
+    public bool IsDashed => isDashed;
     #endregion
 
-    [Header("Dash")]
-    [SerializeField] private float maxDashDistant = 5.0f;
-    private float _dashSpeed;
-    private float _dashTime = 0.2f;
-    [SyncVar] private bool isDashing = false;
-
-    [SyncVar] private bool _isDashed = false;
-    public bool isDashed => _isDashed;
-    private Color defaultColor;
-    private MeshRenderer renderer;
-
-    public CharacterController characterController;
-    public PlayerController playerController;
+    private Player2 player;
+    private MoveController moveController;
+    private CharacterController characterController;
 
     private void Start()
     {
-        renderer = GetComponent<MeshRenderer>();
-        defaultColor = renderer.material.color;
-        _dashSpeed = maxDashDistant / _dashTime;
-    }
-
-    public void ProcessDashCollide()
-    {
-        if (!_isDashed)
-        {
-            _isDashed = true;
-            startChangeColorTime = Time.time;
-            RpcChangeColor(invulnerabilityColor);
-        }        
-    }
-
-    [ClientRpc]
-    private void RpcChangeColor(Color color)
-    {
-        renderer.material.color = color;
+        player = GetComponent<Player2>();
+        moveController = GetComponent<MoveController>();
+        characterController = GetComponent<CharacterController>();
     }
 
     private void Update()
     {
         if (Input.GetKeyDown(activationButton))
         {
-            if (playerController.isMoving && !isDashing)
+            if (moveController.isMoving && !isDashing)
             {
-                SetIsDashing(true);
+                CmdSetIsDashing(true);
                 StartCoroutine(Dash());
             }
         }
-        if (_isDashed && Time.time - startChangeColorTime >= invulnerabilityTime)
+        if (isDashed && Time.time - startInvulnerabilityTime >= invulnerabilityTime)
         {
             CmdCheckAndSetIsDashed(false);
         }
     }
 
     [Command]
-    private void CmdCheckAndSetIsDashed(bool value)
-    {
-        if (Time.time - startChangeColorTime >= invulnerabilityTime)
-        {
-            _isDashed = value;
-            RpcChangeColor(defaultColor);
-        }
-    }
-
-    [Command]
-    private void SetIsDashing(bool value)
+    private void CmdSetIsDashing(bool value)
     {
         isDashing = value;
     }
@@ -87,40 +67,51 @@ public class DashController : NetworkBehaviour
     {
         float startTime = Time.time;
 
-        while (Time.time < startTime + _dashTime)
+        while (Time.time < startTime + dashTime)
         {
-            characterController.Move(playerController.moveDir * _dashSpeed * Time.deltaTime);
+            characterController.Move(dashSpeed * Time.deltaTime * moveController.moveDir);
             yield return null;
         }
 
-        SetIsDashing(false);
+        CmdSetIsDashing(false);
+    }
+
+    [Command]
+    private void CmdCheckAndSetIsDashed(bool value)
+    {
+        if (Time.time - startInvulnerabilityTime >= invulnerabilityTime)
+        {
+            isDashed = value;
+            player.RpcSetDefaultColor();
+        }
     }
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
         GameObject target = hit.transform.gameObject;
         DashController collidePlayer = target.GetComponent<DashController>();
-        ProcessDash(collidePlayer);
+        CmdProcessDash(collidePlayer);
     }
 
     [Command]
-    private void ProcessDash(DashController collidePlayer)
+    private void CmdProcessDash(DashController collidePlayer)
     {
-        if (collidePlayer && isDashing && !collidePlayer.isDashed)
+        if (collidePlayer && !collidePlayer.IsDashed && isDashing)
         {
             //GetComponent<Player>().UpdateScore();
-            GetComponent<PlayerScore>().score++;
+            player.score++;
             collidePlayer.ProcessDashCollide();
-            NetworkIdentity dashingPlayer = collidePlayer.GetComponent<NetworkIdentity>();
         }
         isDashing = false;
     }
 
-    private void OnValidate()
+    public void ProcessDashCollide()
     {
-        if (characterController == null)
-            characterController = GetComponent<CharacterController>();
-        if (playerController == null)
-            playerController = GetComponent<PlayerController>();
+        if (!isDashed)
+        {
+            isDashed = true;
+            startInvulnerabilityTime = Time.time;
+            player.RpcChangeColor(invulnerabilityColor);
+        }        
     }
 }

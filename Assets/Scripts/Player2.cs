@@ -4,7 +4,7 @@ using UnityEngine;
 using Mirror;
 using System;
 
-public class PlayerScore : NetworkBehaviour
+public class Player2 : NetworkBehaviour
 {
     [SerializeField]
     [SyncVar(hook = nameof(SetScore))]
@@ -18,14 +18,19 @@ public class PlayerScore : NetworkBehaviour
         }
     }
 
-    public event Action<PlayerScore> OnScoreChanged;
+    public event Action<Player2> OnScoreChanged;
 
     [Header ("Debug variables")] 
     [SerializeField]
     public PlayerUI2 playerUI;
 
+    private Color defaultColor;
+    private MeshRenderer renderer;
+
     void Start()
     {
+        renderer = GetComponent<MeshRenderer>();
+        defaultColor = renderer.material.color;
         FindObjectOfType<MatchManager>().RegisterPlayerScore(this);
     }
 
@@ -41,5 +46,17 @@ public class PlayerScore : NetworkBehaviour
         {
             playerUI.RefreshPlayerScore(score);
         }
+    }
+
+    [ClientRpc]
+    public void RpcChangeColor(Color color)
+    {
+        renderer.material.color = color;
+    }
+
+    [ClientRpc]
+    public void RpcSetDefaultColor()
+    {
+        renderer.material.color = defaultColor;
     }
 }

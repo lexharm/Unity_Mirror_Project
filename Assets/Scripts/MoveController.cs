@@ -8,7 +8,7 @@ using Mirror.Examples.Basic;
 [RequireComponent(typeof(CharacterController))]
 [RequireComponent(typeof(NetworkTransform))]
 [RequireComponent(typeof(Rigidbody))]
-public class PlayerController : NetworkBehaviour
+public class MoveController : NetworkBehaviour
 {
     public CharacterController characterController;
 
@@ -32,16 +32,9 @@ public class PlayerController : NetworkBehaviour
     private bool _isMoving;
     public bool isMoving => _isMoving;
 
-    /*[Header("Dash")]
-    [SerializeField] private float maxDashDistant = 5.0f;
-    private float _dashSpeed;
-    private float _dashTime = 0.2f;
-    [SyncVar] private bool isDashing = false;*/
-
     private void Start()
     {
         Cursor.visible = false;
-        //_dashSpeed = maxDashDistant / _dashTime;
     }
 
     void OnValidate()
@@ -85,53 +78,5 @@ public class PlayerController : NetworkBehaviour
         {
             _isMoving = false;
         }
-
-        /*if (Input.GetMouseButtonDown(0))
-        {
-            if (!isDashing)
-            {
-                SetIsDashing(true);
-                StartCoroutine(Dash());
-            }
-        }*/
     }
-    
-    /*[Command]
-    private void SetIsDashing(bool value)
-    {
-        isDashing = value;
-    }
-
-    private IEnumerator Dash()
-    {
-        float startTime = Time.time;
-
-        while (Time.time < startTime + _dashTime)
-        {
-            characterController.Move(moveDir * _dashSpeed * Time.deltaTime);
-            yield return null;
-        }
-
-        SetIsDashing(false);
-    }
-
-    private void OnControllerColliderHit(ControllerColliderHit hit)
-    {
-        GameObject target = hit.transform.gameObject;
-        DashController collidePlayer = target.GetComponent<DashController>();
-        ProcessDash(collidePlayer);
-    }
-
-    [Command]
-    private void ProcessDash(DashController collidePlayer)
-    {
-        if (collidePlayer && isDashing && !collidePlayer.isDashed)
-        {
-            //GetComponent<Player>().UpdateScore();
-            GetComponent<PlayerScore>().score++;
-            collidePlayer.ProcessDashCollide();
-            NetworkIdentity dashingPlayer = collidePlayer.GetComponent<NetworkIdentity>();
-        }
-        isDashing = false;
-    }*/
 }

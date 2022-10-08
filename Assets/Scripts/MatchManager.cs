@@ -28,12 +28,12 @@ public class MatchManager : NetworkBehaviour
     private PlayerUI2 playerUI;
     #endregion
 
-    public void RegisterPlayerScore(PlayerScore playerScore)
+    public void RegisterPlayerScore(Player2 playerScore)
     {
         playerScore.OnScoreChanged += OnScoreChanged;
     }
 
-    private void OnScoreChanged(PlayerScore playerScore)
+    private void OnScoreChanged(Player2 playerScore)
     {
         if (playerScore.score >= scoreValueToWin)
         {

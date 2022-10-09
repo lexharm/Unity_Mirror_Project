@@ -24,21 +24,21 @@ public class MatchManager : NetworkBehaviour
     [SerializeField]
     private Text matchRestartText;
 
-    [SerializeField]
-    private PlayerUI2 playerUI;
+    /*[SerializeField]
+    private CanvasUI2 playerUI;*/
     #endregion
 
     public void RegisterPlayerScore(Player2 playerScore)
     {
-        playerScore.OnScoreChanged += OnScoreChanged;
+        playerScore.OnPlayerScoreChanged += OnScoreChanged;
     }
 
-    private void OnScoreChanged(Player2 playerScore)
+    private void OnScoreChanged(Player2 player)
     {
-        if (playerScore.score >= scoreValueToWin)
+        if (player.score >= scoreValueToWin)
         {
-            string resultText = playerScore.isLocalPlayer ? "You win!" : "You lose :(";
-            playerUI.SetAndShowResultText(resultText);
+            string resultText = player.isLocalPlayer ? "You won!" : $"Player [{player.playerNumber}] has won. You lose :(";
+            CanvasUI2.instance.SetAndShowResultText(resultText, player.playerColor);
             StartCoroutine(RestartMatch());
         }
     }
@@ -47,7 +47,7 @@ public class MatchManager : NetworkBehaviour
     {
         for (int i = restartMatchDelay; i > 0; i--)
         {
-            playerUI.SetAndShowRestartText("Next match starts in " + i + "...");
+            CanvasUI2.instance.SetAndShowRestartText("Next match starts in " + i + "...");
             yield return new WaitForSeconds(1);
         }
         if (isServer)

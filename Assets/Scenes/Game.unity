@@ -299,7 +299,6 @@ GameObject:
   - component: {fileID: 415780177}
   - component: {fileID: 415780176}
   - component: {fileID: 415780175}
-  - component: {fileID: 415780174}
   - component: {fileID: 415780178}
   - component: {fileID: 415780180}
   - component: {fileID: 415780179}
@@ -310,20 +309,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &415780174
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 415780173}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 266fac335be17a243af86e88de84766d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  mainPanel: {fileID: 1450702644}
-  playersPanel: {fileID: 1716852336}
 --- !u!114 &415780175
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -403,7 +388,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 05cc3920fa666d048a0ef7353b17f707, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerScore: {fileID: 165585585}
+  mainPanel: {fileID: 1450702644}
+  playersPanel: {fileID: 1716852336}
+  playerScoreText: {fileID: 165585585}
   matchResultText: {fileID: 1857546846}
   matchRestartText: {fileID: 2004116212}
 --- !u!114 &415780179

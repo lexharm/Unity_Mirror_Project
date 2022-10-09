@@ -1,16 +1,12 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
 
-public class Player2 : NetworkBehaviour
+public class Player : NetworkBehaviour
 {
     // Players List to manage playerNumber
-    static readonly List<Player2> playersList = new List<Player2>();
+    static readonly List<Player> playersList = new List<Player>();
 
-    /// <summary>
-    /// This is appended to the player name text, e.g. "Player 01"
-    /// </summary>
     [SyncVar(hook = nameof(PlayerNumberChanged))]
     public int playerNumber = 0;
 
@@ -30,7 +26,7 @@ public class Player2 : NetworkBehaviour
     public Color playerColor = Color.white;
 
     public event System.Action<int> OnPlayerNumberChanged;
-    public event System.Action<Player2> OnPlayerScoreChanged;
+    public event System.Action<Player> OnPlayerScoreChanged;
     public event System.Action<Color> OnPlayerColorChanged;
 
     [Header("Player UI")]
@@ -49,14 +45,13 @@ public class Player2 : NetworkBehaviour
 
     private void Start()
     {
-        Debug.Log("Start");
-        CmdSetPlNum();
+        CmdSetPlayerNumber();
         defaultColor = renderer.material.color;
         FindObjectOfType<MatchManager>().RegisterPlayerScore(this);
     }
 
     [Command]
-    private void CmdSetPlNum()
+    private void CmdSetPlayerNumber()
     {
         int idx = playersList.Count + 1;
         playerNumber = idx;
@@ -67,15 +62,14 @@ public class Player2 : NetworkBehaviour
     {
         playerUI.SetLocalPlayer();
 
-        CanvasUI2.instance.mainPanel.gameObject.SetActive(true);
+        CanvasUI.instance.mainPanel.gameObject.SetActive(true);
     }
 
     public override void OnStopLocalPlayer()
     {
-        CanvasUI2.instance.mainPanel.gameObject.SetActive(false);
+        CanvasUI.instance.mainPanel.gameObject.SetActive(false);
     }
 
-    // This is called by the hook of playerNumber SyncVar above
     void PlayerNumberChanged(int _, int newPlayerNumber)
     {
         OnPlayerNumberChanged?.Invoke(newPlayerNumber);
@@ -86,7 +80,7 @@ public class Player2 : NetworkBehaviour
         score = newValue;
         if (isLocalPlayer)
         {
-            CanvasUI2.instance.RefreshPlayerScore(playerScore);
+            CanvasUI.instance.RefreshPlayerScore(playerScore);
         }
     }
 
@@ -110,16 +104,13 @@ public class Player2 : NetworkBehaviour
 
     public override void OnStartClient()
     {
-        // Instantiate the player UI as child of the Players Panel
-        playerUIObject = Instantiate(playerUIPrefab, CanvasUI2.instance.playersPanel);
+        playerUIObject = Instantiate(playerUIPrefab, CanvasUI.instance.playersPanel);
         playerUI = playerUIObject.GetComponent<PlayerUI>();
 
-        // wire up all events to handlers in PlayerUI
         OnPlayerNumberChanged = playerUI.OnPlayerNumberChanged;
         OnPlayerColorChanged = playerUI.OnPlayerColorChanged;
         OnPlayerScoreChanged += playerUI.OnPlayerScoreChanged;
 
-        // Invoke all event handlers with the initial data from spawn payload
         OnPlayerNumberChanged.Invoke(playerNumber);
         OnPlayerColorChanged.Invoke(playerColor);
         OnPlayerScoreChanged.Invoke(this);
@@ -127,12 +118,10 @@ public class Player2 : NetworkBehaviour
 
     public override void OnStopClient()
     {
-        // disconnect event handlers
         OnPlayerNumberChanged = null;
         OnPlayerColorChanged = null;
         OnPlayerScoreChanged = null;
 
-        // Remove this player's UI object
         Destroy(playerUIObject);
     }
 
@@ -146,7 +135,6 @@ public class Player2 : NetworkBehaviour
     {
         base.OnStartServer();
 
-        // set the Player Color SyncVar
         playerColor = Random.ColorHSV(0f, 1f, 0.9f, 0.9f, 1f, 1f);
         renderer.material.color = playerColor;
     }

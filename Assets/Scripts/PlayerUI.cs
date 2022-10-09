@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -27,7 +25,7 @@ public class PlayerUI : MonoBehaviour
         playerNameText.color = newPlayerColor;
     }
 
-    public void OnPlayerScoreChanged(Player2 player)
+    public void OnPlayerScoreChanged(Player player)
     {
         playerDataText.text = string.Format("Score: {0}", player.score);
     }

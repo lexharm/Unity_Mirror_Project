@@ -1,17 +1,17 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CanvasUI2 : MonoBehaviour
+public class CanvasUI : MonoBehaviour
 {
     #region Singleton
-    public static CanvasUI2 instance;
+
+    public static CanvasUI instance;
 
     private void Awake()
     {
         instance = this;
     }
+
     #endregion
 
     [Tooltip("Assign Main Panel so it can be turned on from Player:OnStartClient")]
@@ -24,6 +24,9 @@ public class CanvasUI2 : MonoBehaviour
     private Text playerScoreText;
 
     [SerializeField]
+    private GameObject endMatchPanel;
+
+    [SerializeField]
     private Text matchResultText;
 
     [SerializeField]
@@ -31,8 +34,7 @@ public class CanvasUI2 : MonoBehaviour
 
     private void Start()
     {
-        matchResultText.gameObject.SetActive(false);
-        matchRestartText.gameObject.SetActive(false);
+        endMatchPanel.SetActive(false);
     }
 
     public void RefreshPlayerScore(int value)
@@ -44,15 +46,12 @@ public class CanvasUI2 : MonoBehaviour
     {
         matchResultText.text = value;
         matchResultText.color = color;
-        matchResultText.gameObject.SetActive(true);
+        endMatchPanel.SetActive(true);
     }
 
     public void SetAndShowRestartText(string value)
     {
         matchRestartText.text = value;
-        if (!matchRestartText.gameObject.activeSelf)
-        {
-            matchRestartText.gameObject.SetActive(true);
-        }
     }
+
 }

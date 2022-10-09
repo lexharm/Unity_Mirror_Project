@@ -30,13 +30,13 @@ public class DashController : NetworkBehaviour
     public bool IsDashed => isDashed;
     #endregion
 
-    private Player2 player;
+    private Player player;
     private MoveController moveController;
     private CharacterController characterController;
 
     private void Start()
     {
-        player = GetComponent<Player2>();
+        player = GetComponent<Player>();
         moveController = GetComponent<MoveController>();
         characterController = GetComponent<CharacterController>();
     }

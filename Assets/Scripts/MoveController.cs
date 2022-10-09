@@ -1,13 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
-using Mirror.Examples.Basic;
 
 [RequireComponent(typeof(CapsuleCollider))]
 [RequireComponent(typeof(CharacterController))]
 [RequireComponent(typeof(NetworkTransform))]
-[RequireComponent(typeof(Rigidbody))]
 public class MoveController : NetworkBehaviour
 {
     public CharacterController characterController;
@@ -44,7 +40,6 @@ public class MoveController : NetworkBehaviour
             characterController = GetComponent<CharacterController>();
 
         characterController.enabled = false;
-        GetComponent<Rigidbody>().isKinematic = true;
         GetComponent<NetworkTransform>().clientAuthority = true;
     }
 

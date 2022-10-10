@@ -2,6 +2,9 @@ using System.Collections;
 using UnityEngine;
 using Mirror;
 
+[RequireComponent(typeof(Player))]
+[RequireComponent(typeof(MoveController))]
+[RequireComponent(typeof(CharacterController))]
 public class DashController : NetworkBehaviour
 {
     #region Dash params
@@ -45,7 +48,7 @@ public class DashController : NetworkBehaviour
     {
         if (Input.GetKeyDown(activationButton))
         {
-            if (moveController.isMoving && !isDashing)
+            if (moveController.IsMoving && !isDashing)
             {
                 CmdSetIsDashing(true);
                 StartCoroutine(Dash());
@@ -69,7 +72,7 @@ public class DashController : NetworkBehaviour
 
         while (Time.time < startTime + dashTime)
         {
-            characterController.Move(dashSpeed * Time.deltaTime * moveController.moveDir);
+            characterController.Move(dashSpeed * Time.deltaTime * moveController.MoveDirection);
             yield return null;
         }
 
@@ -99,7 +102,7 @@ public class DashController : NetworkBehaviour
         if (collidePlayer && !collidePlayer.IsDashed && isDashing)
         {
             //GetComponent<Player>().UpdateScore();
-            player.score++;
+            player.Score++;
             collidePlayer.ProcessDashCollide();
         }
         isDashing = false;

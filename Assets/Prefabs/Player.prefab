@@ -246,7 +246,7 @@ CharacterController:
   m_GameObject: {fileID: 2332994543519849615}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 2
   m_Height: 2
   m_Radius: 0.5
@@ -269,20 +269,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncMode: 0
   syncInterval: 0.1
-  characterController: {fileID: -1659245836403834785}
+  playerCamera: {fileID: 0}
   moveSpeed: 8
-  turnSensitivity: 5
-  maxTurnSpeed: 100
-  moveDir: {x: 0, y: 0, z: 0}
-  turnSmoothTime: 0.1
-  cam: {fileID: 0}
-  horizontal: 0
-  vertical: 0
-  turn: 0
-  jumpSpeed: 0
-  isGrounded: 1
-  isFalling: 0
-  velocity: {x: 0, y: 0, z: 0}
 --- !u!114 &-6255786796454518988
 MonoBehaviour:
   m_ObjectHideFlags: 0

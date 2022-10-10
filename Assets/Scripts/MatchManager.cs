@@ -17,6 +17,10 @@ public class MatchManager : NetworkBehaviour
     [Range(1, 60)]
     private int restartMatchDelay = 5;
 
+    private bool isMatchFinished = false;
+    [SyncVar(hook = nameof(MatchFinishedChanged))]
+    private bool syncMatchFinished = false;
+
     #endregion
 
     public void RegisterPlayerScore(Player playerScore)
@@ -26,8 +30,10 @@ public class MatchManager : NetworkBehaviour
 
     private void OnScoreChanged(Player player)
     {
-        if (player.score >= scoreValueToWin)
+        if (!isMatchFinished && player.Score >= scoreValueToWin)
+        //if (player.Score >= scoreValueToWin)
         {
+            CmdFinishMatch();
             string resultText = player.isLocalPlayer ? "You won!" : $"Player [{player.playerNumber}] has won. You lose :(";
             CanvasUI.instance.SetAndShowResultText(resultText, player.playerColor);
             StartCoroutine(RestartMatch());
@@ -45,5 +51,22 @@ public class MatchManager : NetworkBehaviour
         {
             NetworkManager.singleton.ServerChangeScene(SceneManager.GetActiveScene().name);
         }
+    }
+
+    private void MatchFinishedChanged(bool _, bool newValue)
+    {
+        isMatchFinished = newValue;
+    }
+
+    [Server]
+    private void FinishMatch()
+    {
+        syncMatchFinished = true;
+    }
+
+    [Command]
+    private void CmdFinishMatch()
+    {
+        FinishMatch();
     }
 }

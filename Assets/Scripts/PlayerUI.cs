@@ -27,7 +27,7 @@ public class PlayerUI : MonoBehaviour
 
     public void OnPlayerScoreChanged(Player player)
     {
-        playerDataText.text = string.Format("Score: {0}", player.score);
+        playerDataText.text = string.Format("Score: {0}", player.Score);
     }
 
 }

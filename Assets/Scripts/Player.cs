@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
 
+[RequireComponent(typeof(MeshRenderer))]
 public class Player : NetworkBehaviour
 {
     // Players List to manage playerNumber
@@ -13,7 +14,7 @@ public class Player : NetworkBehaviour
     [SerializeField]
     [SyncVar(hook = nameof(PlayerScoreChanged))]
     private int playerScore = 0;
-    public int score {
+    public int Score {
         get => playerScore;
         set
         {
@@ -36,17 +37,17 @@ public class Player : NetworkBehaviour
     PlayerUI playerUI = null;
 
     private Color defaultColor;
-    private MeshRenderer renderer;
+    private MeshRenderer meshRenderer;
 
     private void Awake()
     {
-        renderer = GetComponent<MeshRenderer>();
+        meshRenderer = GetComponent<MeshRenderer>();
     }
 
     private void Start()
     {
         CmdSetPlayerNumber();
-        defaultColor = renderer.material.color;
+        defaultColor = meshRenderer.material.color;
         FindObjectOfType<MatchManager>().RegisterPlayerScore(this);
     }
 
@@ -77,7 +78,7 @@ public class Player : NetworkBehaviour
 
     private void PlayerScoreChanged(int _, int newValue)
     {
-        score = newValue;
+        Score = newValue;
         if (isLocalPlayer)
         {
             CanvasUI.instance.RefreshPlayerScore(playerScore);
@@ -86,20 +87,20 @@ public class Player : NetworkBehaviour
 
     void PlayerColorChanged(Color _, Color newPlayerColor)
     {
-        renderer.material.color = newPlayerColor;
+        meshRenderer.material.color = newPlayerColor;
         OnPlayerColorChanged?.Invoke(newPlayerColor);
     }
 
     [ClientRpc]
     public void RpcChangeColor(Color color)
     {
-        renderer.material.color = color;
+        meshRenderer.material.color = color;
     }
 
     [ClientRpc]
     public void RpcSetDefaultColor()
     {
-        renderer.material.color = defaultColor;
+        meshRenderer.material.color = defaultColor;
     }
 
     public override void OnStartClient()
@@ -136,7 +137,7 @@ public class Player : NetworkBehaviour
         base.OnStartServer();
 
         playerColor = Random.ColorHSV(0f, 1f, 0.9f, 0.9f, 1f, 1f);
-        renderer.material.color = playerColor;
+        meshRenderer.material.color = playerColor;
     }
 
 }

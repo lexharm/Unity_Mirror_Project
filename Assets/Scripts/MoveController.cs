@@ -1,78 +1,65 @@
 using UnityEngine;
 using Mirror;
 
-[RequireComponent(typeof(CapsuleCollider))]
 [RequireComponent(typeof(CharacterController))]
 [RequireComponent(typeof(NetworkTransform))]
 public class MoveController : NetworkBehaviour
 {
-    public CharacterController characterController;
 
-    [Header("Movement Settings")]
-    public float moveSpeed = 8f;
-    public float turnSensitivity = 100f;
-    public float maxTurnSpeed = 100f;
-    public Vector3 moveDir;
-    public float turnSmoothTime = 0.1f;
-    float turnSmoothVelocity;
-    public Transform cam;
+    [SerializeField] private float moveSpeed = 8.0f;
 
-    [Header("Diagnostics")]
-    public float horizontal;
-    public float vertical;
-    public float turn;
-    public float jumpSpeed;
-    public bool isGrounded = true;
-    public bool isFalling;
-    public Vector3 velocity;
-    private bool _isMoving;
-    public bool isMoving => _isMoving;
+    public Transform playerCamera;
+
+    private Vector3 moveDirection;
+    public Vector3 MoveDirection => moveDirection;
+
+    private bool isMoving;
+    public bool IsMoving => isMoving;
+
+    private float turnSmoothTime = 0.1f;
+    private float turnSmoothVelocity;
+    private float horizontal;
+    private float vertical;
+    private CharacterController characterController;
+
+    private void Awake()
+    {
+        characterController = GetComponent<CharacterController>();
+    }
 
     private void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-    }
-
-    void OnValidate()
-    {
-        if (characterController == null)
-            characterController = GetComponent<CharacterController>();
-
-        characterController.enabled = false;
         GetComponent<NetworkTransform>().clientAuthority = true;
     }
 
-    public override void OnStartLocalPlayer()
-    {
-        characterController.enabled = true;
-    }
-
-    void Update()
+    private void Update()
     {
         if (!isLocalPlayer || characterController == null || !characterController.enabled)
             return;
 
-        transform.rotation = Quaternion.Euler(0f, cam.eulerAngles.y, 0f);
+        transform.rotation = Quaternion.Euler(0f, playerCamera.eulerAngles.y, 0f);
 
         horizontal = Input.GetAxisRaw("Horizontal");
         vertical = Input.GetAxisRaw("Vertical");
 
         Vector3 dir = new Vector3(horizontal, 0, vertical).normalized;
 
-        float targetAngle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg + cam.eulerAngles.y;
+        float targetAngle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg + playerCamera.eulerAngles.y;
         float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
         transform.rotation = Quaternion.Euler(0f, angle, 0f);
 
-        moveDir = Quaternion.Euler(0, targetAngle, 0) * Vector3.forward;
+        moveDirection = Quaternion.Euler(0, targetAngle, 0) * Vector3.forward;
 
         if (dir.magnitude >= 0.1f)
         {
-            _isMoving = true;
-            characterController.Move(moveDir.normalized * moveSpeed * Time.deltaTime);
+            isMoving = true;
+            characterController.Move(moveSpeed * Time.deltaTime * moveDirection.normalized);
         } else
         {
-            _isMoving = false;
+            isMoving = false;
         }
     }
+
 }

@@ -1,65 +1,70 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Mirror;
 
+[RequireComponent(typeof(MoveController))]
 public class PlayerCamera : NetworkBehaviour
 {
-    private Camera mainCam;
-    private float _mouseSensitivity = 2.0f;
-    private float _rotationY;
-    private float _rotationX;
-    private float _distanceFromTarget;
-    private Vector3 _currentRotation;
-    private Vector3 _smoothVelocity = Vector3.zero;
-    private float _smoothTime = 0.2f;
-    private Vector2 _rotationXMinMax = new Vector2(-5, 45);
+    private Camera playerCamera;
+    private float mouseSensitivity = 2.0f;
+    private float rotationX;
+    private float rotationY;
+    private float distanceFromTarget;
+    private Vector3 currentRotation;
+    private Vector3 smoothVelocity = Vector3.zero;
+    private float smoothTime = 0.2f;
+    private Vector2 rotationXMinMax = new Vector2(-10, 60);
+    private MoveController moveController;
 
-    void Start()
+    private void Awake()
+    {
+        moveController = GetComponent<MoveController>();
+    }
+
+    private void Start()
     {
         if (isClient && isLocalPlayer)
         {
-            mainCam = Camera.main;
-            GetComponent<MoveController>().cam = mainCam.transform;
+            playerCamera = Camera.main;
+            moveController.playerCamera = playerCamera.transform;
 
-            mainCam.orthographic = false;
-            mainCam.transform.SetParent(transform);
-            mainCam.transform.localPosition = new Vector3(0f, 3f, -5f);
-            mainCam.transform.localEulerAngles = new Vector3(10f, 0f, 0f);
+            playerCamera.orthographic = false;
+            playerCamera.transform.SetParent(transform);
+            playerCamera.transform.localPosition = new Vector3(0f, 5f, 3f);
 
-            _distanceFromTarget = mainCam.transform.localPosition.magnitude;
+            distanceFromTarget = playerCamera.transform.localPosition.magnitude;
 
-            mainCam.transform.SetParent(null);
+            playerCamera.transform.SetParent(null);
         }
     }
 
     public override void OnStopLocalPlayer()
     {
-        if (mainCam != null)
+        if (playerCamera != null)
         {
-            mainCam.transform.SetParent(null);
-            GetComponent<MoveController>().cam = null;
-            SceneManager.MoveGameObjectToScene(mainCam.gameObject, SceneManager.GetActiveScene());
-            mainCam.orthographic = true;
-            mainCam.transform.localPosition = new Vector3(0f, 70f, 0f);
-            mainCam.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
+            playerCamera.transform.SetParent(null);
+            moveController.playerCamera = null;
+            SceneManager.MoveGameObjectToScene(playerCamera.gameObject, SceneManager.GetActiveScene());
+            playerCamera.orthographic = true;
+            playerCamera.transform.localPosition = new Vector3(0f, 70f, 0f);
+            playerCamera.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
         }
     }
 
     private void Update()
     {
-        _rotationY += Input.GetAxis("Mouse X") * _mouseSensitivity;
-        _rotationX -= Input.GetAxis("Mouse Y") * _mouseSensitivity;
-        _rotationX = Mathf.Clamp(_rotationX, _rotationXMinMax.x, _rotationXMinMax.y);
+        rotationY += Input.GetAxis("Mouse X") * mouseSensitivity;
+        rotationX -= Input.GetAxis("Mouse Y") * mouseSensitivity;
+        rotationX = Mathf.Clamp(rotationX, rotationXMinMax.x, rotationXMinMax.y);
 
-        Vector3 nextRotation = new Vector3(_rotationX, _rotationY);
+        Vector3 nextRotation = new Vector3(rotationX, rotationY);
 
-        _currentRotation = Vector3.SmoothDamp(_currentRotation, nextRotation, ref _smoothVelocity, _smoothTime);
-        if (mainCam)
+        currentRotation = Vector3.SmoothDamp(currentRotation, nextRotation, ref smoothVelocity, smoothTime);
+        if (playerCamera)
         {
-            mainCam.transform.eulerAngles = _currentRotation;
-            mainCam.transform.position = transform.position - mainCam.transform.forward * _distanceFromTarget;
+            playerCamera.transform.eulerAngles = currentRotation;
+            playerCamera.transform.position = transform.position - playerCamera.transform.forward * distanceFromTarget;
         }
     }
+
 }

@@ -49,6 +49,7 @@ public class Player : NetworkBehaviour
         CmdSetPlayerNumber();
         defaultColor = meshRenderer.material.color;
         FindObjectOfType<MatchManager>().RegisterPlayerScore(this);
+        //MatchManager.instance.RegisterPlayerScore(this);
     }
 
     [Command]

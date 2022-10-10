@@ -54,4 +54,9 @@ public class CanvasUI : MonoBehaviour
         matchRestartText.text = value;
     }
 
+    public bool IsMatchPanelActive()
+    {
+        return endMatchPanel.activeSelf;
+    }
+
 }

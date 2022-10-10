@@ -5,6 +5,17 @@ using UnityEngine.SceneManagement;
 
 public class MatchManager : NetworkBehaviour
 {
+    #region Singleton
+
+    public static MatchManager instance;
+
+    private void Awake()
+    {
+        instance = this;
+    }
+
+    #endregion
+
     #region Variables
 
     [Tooltip("Minimum score value to win the match.")]
@@ -17,31 +28,29 @@ public class MatchManager : NetworkBehaviour
     [Range(1, 60)]
     private int restartMatchDelay = 5;
 
-    private bool isMatchFinished = false;
-    [SyncVar(hook = nameof(MatchFinishedChanged))]
-    private bool syncMatchFinished = false;
-
     #endregion
 
-    public void RegisterPlayerScore(Player playerScore)
+    public void RegisterPlayerScore(Player player)
     {
-        playerScore.OnPlayerScoreChanged += OnScoreChanged;
+        player.OnPlayerScoreChanged += OnScoreChanged;
     }
 
     private void OnScoreChanged(Player player)
     {
-        if (!isMatchFinished && player.Score >= scoreValueToWin)
-        //if (player.Score >= scoreValueToWin)
+        if (player.Score >= scoreValueToWin)
         {
-            CmdFinishMatch();
             string resultText = player.isLocalPlayer ? "You won!" : $"Player [{player.playerNumber}] has won. You lose :(";
-            CanvasUI.instance.SetAndShowResultText(resultText, player.playerColor);
-            StartCoroutine(RestartMatch());
+            if (!CanvasUI.instance.IsMatchPanelActive())
+            {
+                StartCoroutine(RestartMatch(resultText, player.playerColor));
+            }
         }
     }
 
-    private IEnumerator RestartMatch()
+    private IEnumerator RestartMatch(string resultText, Color color)
     {
+        CanvasUI.instance.SetAndShowResultText(resultText, color);
+
         for (int i = restartMatchDelay; i > 0; i--)
         {
             CanvasUI.instance.SetAndShowRestartText("Next match starts in " + i + "...");
@@ -53,20 +62,4 @@ public class MatchManager : NetworkBehaviour
         }
     }
 
-    private void MatchFinishedChanged(bool _, bool newValue)
-    {
-        isMatchFinished = newValue;
-    }
-
-    [Server]
-    private void FinishMatch()
-    {
-        syncMatchFinished = true;
-    }
-
-    [Command]
-    private void CmdFinishMatch()
-    {
-        FinishMatch();
-    }
 }
